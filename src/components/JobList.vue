@@ -15,7 +15,7 @@ defineProps({
     <p v-if="jobs.length === 0">표시할 공고가 없습니다.</p>
     <JobItem
     v-for="job in jobs"
-    :key="job_id"
+    :key="job.id"
     :job="job"
     />
 </section>

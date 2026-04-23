@@ -1,5 +1,10 @@
 <script setup>
-
+defineProps({
+    job: {
+        type: Object,
+        required: true
+    }
+})
 </script>
 
 <template>

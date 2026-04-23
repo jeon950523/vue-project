@@ -10,7 +10,7 @@ defineEmits(['save','clear'])
 </template>
 
 <style scoped>
-.buttonGroupP{
+.buttonGroup{
     display: flex;
     gap: 8px;
 }
