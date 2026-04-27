@@ -1,11 +1,15 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import ActionBar from './components/ActionBar.vue';
 import JobList from './components/JobList.vue';
+import JobFilter from './components/JobFilter.vue';
 
 const STORAGE_KEY = "saramin-saved-jobs";
 const jobs = ref([]);
 const status = ref('');
+const searchKeyword = ref('')
+const showFavoritesOnly = ref(false)
+const sortOption = ref('latest')
 
 function loadSavedJobs() {
   return new Promise((resolve) => {
@@ -88,6 +92,43 @@ async function handleClear() {
   status.value = '저장된 공고가 없습니다.'
 }
 
+const filteredJobs = computed(() => {
+  let result = [...jobs.value]
+
+  const keyword = searchKeyword.value.trim().toLowerCase()
+
+  if (keyword) {
+    result = result.filter((job) => {
+      return (
+        job.title?.toLowerCase().includes(keyword) ||
+        job.company?.toLowerCase().includes(keyword) ||
+        job.location?.toLowerCase().includes(keyword) ||
+        job.career?.toLowerCase().includes(keyword) ||
+        job.employmentType?.toLowerCase().includes(keyword) ||
+        job.preferred?.toLowerCase().includes(keyword)
+      )
+    })
+  }
+
+  if (showFavoritesOnly.value) {
+    result = result.filter((job) => job.favorite)
+  }
+
+  if (sortOption.value === 'company') {
+    result.sort((a, b) => {
+      return (a.company || '').localeCompare(b.company || '')
+    })
+  }
+
+  if (sortOption.value === 'title') {
+    result.sort((a, b) => {
+      return (a.title || '').localeCompare(b.title || '')
+    })
+  }
+
+  return result
+})
+
 onMounted(async()=>{
   const savedJobs = await loadSavedJobs()
   jobs.value = savedJobs
@@ -110,8 +151,17 @@ onMounted(async()=>{
   @clear="handleClear"
   />
   <p>{{ status }}</p>
+  
+  <JobFilter 
+  :searchKeyword="searchKeyword"
+  :showFavoritesOnly="showFavoritesOnly"
+  :sortOption="sortOption"
+  @update:seachKeyword="searchKeyword = $event"
+  @update:showFavoritesOnly="showFavoritesOnly = $event"
+  @update:sortOtion="sortOption = $event"
+  />
  
-  <JobList :jobs="jobs"/>
+  <JobList :jobs="filteredJobs"/>
 
 </div>
 
