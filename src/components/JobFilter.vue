@@ -15,7 +15,7 @@ defineProps({
 })
 
 defineEmits([
-    'update:serachKeyword',
+    'update:searchKeyword',
     'update:showFavoritesOnly',
     'update:sortOption'
 ])

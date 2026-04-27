@@ -156,9 +156,9 @@ onMounted(async()=>{
   :searchKeyword="searchKeyword"
   :showFavoritesOnly="showFavoritesOnly"
   :sortOption="sortOption"
-  @update:seachKeyword="searchKeyword = $event"
+  @update:searchKeyword="searchKeyword = $event"
   @update:showFavoritesOnly="showFavoritesOnly = $event"
-  @update:sortOtion="sortOption = $event"
+  @update:sortOption="sortOption = $event"
   />
  
   <JobList :jobs="filteredJobs"/>
