@@ -7,6 +7,8 @@ defineProps({
         default : ()=>[]
     }
 })
+defineEmits(['toggle-favorite'])
+
 
 </script>
 
@@ -17,6 +19,7 @@ defineProps({
     v-for="job in jobs"
     :key="job.id"
     :job="job"
+    @toggle-favorite="$emit('toggle-favorite', $event)"
     />
 </section>
 </template>

@@ -43,12 +43,28 @@ function saveMergedJobs(newJobs){
   });
 };
 
+
+
+function saveJobs(jobsToSave){
+  return new Promise(()=>{
+    chrome.storage.local.set({[STORAGE_KEY]: jobsToSave}, function(){resolve()})
+  })
+}
+
+async function toggleFavorite(jobid){
+    const target = jobs.value.find((job)=>job.id===jobid)
+    if(!target) return
+    target.favorite = !target.favorite
+  await saveJobs(jobs.value)
+}
+
 function getCurrentTab(){
   return new Promise((resolve)=>{chrome.tabs.query({active:true, currentWindow: true}, function(tabs){
     resolve(tabs[0])
   })
 })
 }
+
 
 function collectJobsFromPage(){
   return new Promise(async(resolve)=>{
@@ -129,6 +145,8 @@ const filteredJobs = computed(() => {
   return result
 })
 
+
+
 onMounted(async()=>{
   const savedJobs = await loadSavedJobs()
   jobs.value = savedJobs
@@ -161,7 +179,8 @@ onMounted(async()=>{
   @update:sortOption="sortOption = $event"
   />
  
-  <JobList :jobs="filteredJobs"/>
+  <JobList :jobs="filteredJobs"
+  @toggle-favorite="toggleFavorite"/>
 
 </div>
 

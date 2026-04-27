@@ -5,6 +5,7 @@ defineProps({
         required: true
     }
 })
+defineEmits(['toggle-favorite'])
 </script>
 
 <template>
@@ -59,6 +60,9 @@ defineProps({
     rel="noopener noreferrer">
     공고 바로가기
         </a>
+    <button type="button" class="favoriteBtn" @click="$emit('toggle-favorite', job.id)">
+      {{ job.favorite ?'관심해제':'관심등록' }}
+    </button>
     </article>
 </template>
 
@@ -87,5 +91,11 @@ defineProps({
 .joblink{
     display: inline-block;
     margin-top: 10px;
+}
+.favoriteBtn{
+  display: block;
+  margin-top: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
 }
 </style>

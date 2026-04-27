@@ -8,7 +8,7 @@ defineProps({
         type: Boolean
         ,default: false
     },
-    srotOption: {
+    sortOption: {
         type: String
         ,default: 'latest'
     }
@@ -26,7 +26,7 @@ defineEmits([
     class="searchInput" 
     placeholder="회사명 또는 공고명" 
     :value="searchKeyword"
-    @input="$emit('update:serachKeyword', $event.target.value)"/>
+    @input="$emit('update:searchKeyword', $event.target.value)"/>
 
     <label class="favoriteOnly">
         <input type="checkbox"
