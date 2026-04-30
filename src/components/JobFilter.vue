@@ -57,11 +57,15 @@ defineEmits([
 .sortSelect {
   padding: 8px;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  font-size: 15px;
 }
 
 .favoriteOnly {
   display: flex;
   align-items: center;
   gap: 6px;
+  font-size: 15px;
 }
 </style>

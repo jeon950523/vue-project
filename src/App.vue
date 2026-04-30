@@ -3,53 +3,16 @@ import { onMounted, ref, computed } from 'vue';
 import ActionBar from './components/ActionBar.vue';
 import JobList from './components/JobList.vue';
 import JobFilter from './components/JobFilter.vue';
+import { loadSavedJobs, clearSavedJobs, saveMergedJobs, saveJobs } from './utils/storage';
+import { collectJobsFromPage } from './utils/chromeMessage'
 
-const STORAGE_KEY = "saramin-saved-jobs";
+
 const jobs = ref([]);
 const status = ref('');
 const searchKeyword = ref('')
 const showFavoritesOnly = ref(false)
 const sortOption = ref('latest')
 
-function loadSavedJobs() {
-  return new Promise((resolve) => {
-    chrome.storage.local.get([STORAGE_KEY], function (data) {
-      resolve(data[STORAGE_KEY] || []);
-    });
-  });
-}
-
-function clearSavedJobs() {
-  return new Promise((resolve) => {
-    chrome.storage.local.remove(STORAGE_KEY, function () {
-      resolve();
-    });
-  });
-}
-
-function saveMergedJobs(newJobs){
-  return new Promise((resolve)=>{
-    chrome.storage.local.get([STORAGE_KEY], function(data){
-      const savedJobs = data[STORAGE_KEY]||[];
-      const jobMap = new Map();
-
-      savedJobs.forEach(job => jobMap.set(job.id, job))
-      newJobs.forEach((job) => jobMap.set(job.id, job))
-
-      const mergedJobs = [...jobMap.values()]
-
-      chrome.storage.local.set({[STORAGE_KEY]: mergedJobs}, function(){resolve(mergedJobs)})
-    });
-  });
-};
-
-
-
-function saveJobs(jobsToSave){
-  return new Promise(()=>{
-    chrome.storage.local.set({[STORAGE_KEY]: jobsToSave}, function(){resolve()})
-  })
-}
 
 async function toggleFavorite(jobid){
     const target = jobs.value.find((job)=>job.id===jobid)
@@ -58,34 +21,7 @@ async function toggleFavorite(jobid){
   await saveJobs(jobs.value)
 }
 
-function getCurrentTab(){
-  return new Promise((resolve)=>{chrome.tabs.query({active:true, currentWindow: true}, function(tabs){
-    resolve(tabs[0])
-  })
-})
-}
 
-
-function collectJobsFromPage(){
-  return new Promise(async(resolve)=>{
-    const currentTab = await getCurrentTab()
-    
-    chrome.tabs.sendMessage(
-      currentTab.id,
-      {action: 'COLLECT_JOBS'},
-      function (response){
-        if(chrome.runtime.lastError){
-          resolve({
-            ok: false,
-            message: '사람인 페이지에서만 실행 가능합니다.'
-          })
-          return
-        }
-        resolve(response)
-      }
-    )
-  })
-}
 
 async function handleSave() {
   const response = await collectJobsFromPage()
@@ -189,9 +125,22 @@ onMounted(async()=>{
 <style scoped>
 .popupwrap{
   padding: 16px;
+  width: 550px;
+  min-width: 550px;
+  height: 600px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .popuptitle{
-  margin-bottom: 16px;
+  margin: 0 0 16px;
+  font-size: 28px;
+  font-weight: 800;
+  white-space: nowrap;
+  
+}
+.popupwrap > p {
+    margin: 12px 0;
+    font-size: 15px;
 }
 </style>

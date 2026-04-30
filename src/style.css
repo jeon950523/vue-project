@@ -1,0 +1,13 @@
+html,
+body {
+  margin: 0px;
+  width: 550px;
+  min-width: 550px;
+  height: 600px;
+  min-height: 600px;
+  overflow: hidden;
+}
+#app{
+  width: 100%;
+  height: 100%;
+}

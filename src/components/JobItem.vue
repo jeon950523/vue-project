@@ -72,25 +72,39 @@ defineEmits(['toggle-favorite'])
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 12px;
+    width: 100%;
 }   
 
 .jobCardTitle{
     font-size: 1.3rem;
     margin-bottom: 10px;
+    line-height: 1.35;
+    word-break: keep-all;
 }
 
 .jobRow{
     margin: 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 15px;
+    line-height: 1.45;
 }
 
 .jobLabel{
     font-weight: 900;
     margin-right: 4px;
+    flex: 0 0 84px;
+}
+.jobRow span:last-child{
+    flex: 1;
+    word-break: keep-all;
 }
 
 .joblink{
     display: inline-block;
     margin-top: 10px;
+    font-size: 15px;
 }
 .favoriteBtn{
   display: block;
