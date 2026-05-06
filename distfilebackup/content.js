@@ -50,6 +50,7 @@ function createJob({
   ,deadline = '정보없음'
   ,postedDate = '정보없음'
   ,url = ''
+  
 
 }){ return{
   id: makeJobId(sourceKey, url, company, title)
@@ -66,6 +67,7 @@ function createJob({
   ,postedDate
   ,url
   ,favorite:false
+  ,ignore:false
 };
 }
 

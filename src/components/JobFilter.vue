@@ -8,6 +8,10 @@ defineProps({
         type: Boolean
         ,default: false
     },
+    showIgnoredJobs:{
+        type:Boolean,
+        default:false
+    },
     sortOption: {
         type: String
         ,default: 'latest'
@@ -17,8 +21,11 @@ defineProps({
 defineEmits([
     'update:searchKeyword',
     'update:showFavoritesOnly',
+    'update:showIgnoredJobs',
     'update:sortOption'
 ])
+
+
 </script>
 <template>
 <div class="jobFilter">
@@ -33,6 +40,12 @@ defineEmits([
         :checked="showFavoritesOnly"
         @change="$emit('update:showFavoritesOnly', $event.target.checked)"/>
         관심등록만 보기
+    </label>
+    <label class="favoriteOnly">
+        <input type="checkbox"
+        :checked="showIgnoredJobs"
+        @change="$emit('update:showIgnoredJobs', $event.target.checked)"/>
+        무시한 공고만 보기
     </label>
     <select class="sortSelect"
         :value="sortOption"

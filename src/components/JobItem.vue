@@ -5,7 +5,7 @@ defineProps({
         required: true
     }
 })
-defineEmits(['toggle-favorite'])
+defineEmits(['toggle-favorite','toggle-ignored'])
 </script>
 
 <template>
@@ -69,6 +69,10 @@ defineEmits(['toggle-favorite'])
     <button type="button" class="favoriteBtn" @click="$emit('toggle-favorite', job.id)">
       {{ job.favorite ?'관심해제':'관심등록' }}
     </button>
+    <button type="button" class="favoriteBtn" @click="$emit('toggle-ignored', job.id)">
+      {{ job.ignored ?'무시해제':'무시하기' }}
+    </button>
+    <p v-if="job.ignored" class="ignoredBadge">무시한 공고</p>
     </article>
 </template>
 
@@ -117,5 +121,11 @@ defineEmits(['toggle-favorite'])
   margin-top: 8px;
   padding: 6px 10px;
   cursor: pointer;
+}
+.ignoredBadge{
+    margin: 8px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #777;
 }
 </style>

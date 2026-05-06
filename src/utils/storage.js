@@ -37,6 +37,7 @@ function normalizeJob(siteKey,job){
     ,site:siteKey
     ,source:job.source || SITE_LABELS[siteKey]
     ,favorite:job.favorite ?? false
+    ,ignored: job.ignored ?? false
   }
 }
 
@@ -104,6 +105,7 @@ export async function saveMergedJobs(siteKey, newJobs){
         ...oldjob
         ,...normalizedJob
         ,favorite: oldjob.favorite ?? false
+        ,ignored: oldjob.ignored ?? false
       }
       :normalizedJob
     )

@@ -7,7 +7,7 @@ defineProps({
         default : ()=>[]
     }
 })
-defineEmits(['toggle-favorite'])
+defineEmits(['toggle-favorite', 'toggle-ignored'])
 
 
 </script>
@@ -20,6 +20,7 @@ defineEmits(['toggle-favorite'])
     :key="job.id"
     :job="job"
     @toggle-favorite="$emit('toggle-favorite', $event)"
+    @toggle-ignored="$emit('toggle-ignored', $event)"
     />
 </section>
 </template>

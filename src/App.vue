@@ -17,6 +17,8 @@ const searchKeyword = ref('')
 const showFavoritesOnly = ref(false)
 const sortOption = ref('latest')
 const selectedSite = ref('all')
+const showIgnoredJobs = ref(false)
+
 
 const siteCounts = computed(()=>{
     const counts = {
@@ -42,6 +44,15 @@ async function toggleFavorite(jobid){
     target.favorite = !target.favorite
   await saveJobs(jobs.value)
 }
+
+async function toggleIgnored(jobId) {
+    const target = jobs.value.find((job)=>job.id === jobId)
+    if(!target) return
+    target.ignored = !target.ignored
+    await saveJobs(jobs.value)
+}
+
+
 
 async function handleSave() {
   const response = await collectJobsFromPage()
@@ -78,6 +89,12 @@ const filteredJobs = computed(() => {
         return getSiteKey(job) === selectedSite.value
     })
   }
+  if(showIgnoredJobs.value){
+    result = result.filter((job)=>job.ignored)
+  }else {
+    result = result.filter((job)=>!job.ignored)
+  }
+
 
   const keyword = searchKeyword.value.trim().toLowerCase()
 
@@ -144,14 +161,17 @@ onMounted(async()=>{
   <JobFilter 
   :searchKeyword="searchKeyword"
   :showFavoritesOnly="showFavoritesOnly"
+  :showIgnoredJobs="showIgnoredJobs"
   :sortOption="sortOption"
   @update:searchKeyword="searchKeyword = $event"
   @update:showFavoritesOnly="showFavoritesOnly = $event"
+  @update:showIgnoredJobs="showIgnoredJobs = $event"
   @update:sortOption="sortOption = $event"
   />
  
   <JobList :jobs="filteredJobs"
-  @toggle-favorite="toggleFavorite"/>
+  @toggle-favorite="toggleFavorite"
+  @toggle-ignored="toggleIgnored"/>
 
 </div>
 
