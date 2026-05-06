@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Saramin Job Saver",
+  "version": "1.0.0",
+  "description": "구직사이트 공고를 저장하는 확장프로그램, 사람인, 잡코리아, 인크루트",
+"permissions": ["storage", "activeTab","tabs", "scripting"],
+ "host_permissions": ["https://*.saramin.co.kr/*",
+                      "https://*.incruit.com/*",
+                      "https://*.jobkorea.co.kr/*"
+        ],
+  "action": {
+    "default_popup": "index.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://www.saramin.co.kr/zf_user/jobs/list/*"
+                 ,"https://*.incruit.com/*"
+                 ,"https://*.jobkorea.co.kr/*"],
+                    
+      "js": ["content.js"]
+    }
+  ]
+}

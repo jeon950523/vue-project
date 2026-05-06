@@ -3,15 +3,37 @@ import { onMounted, ref, computed } from 'vue';
 import ActionBar from './components/ActionBar.vue';
 import JobList from './components/JobList.vue';
 import JobFilter from './components/JobFilter.vue';
-import { loadSavedJobs, clearSavedJobs, saveMergedJobs, saveJobs } from './utils/storage';
+import { loadSavedJobs,
+         clearSavedJobs,
+         saveMergedJobs, 
+         saveJobs,
+         getSiteKey,
+         SITE_LABELS} from './utils/storage';
 import { collectJobsFromPage } from './utils/chromeMessage'
-
 
 const jobs = ref([]);
 const status = ref('');
 const searchKeyword = ref('')
 const showFavoritesOnly = ref(false)
 const sortOption = ref('latest')
+const selectedSite = ref('all')
+
+const siteCounts = computed(()=>{
+    const counts = {
+        all: jobs.value.length,
+        saramin:0,
+        incruit:0,
+        jobkorea:0    
+    }
+    jobs.value.forEach((job)=>{
+        const siteKey = getSiteKey(job)
+        if(!counts[siteKey]){
+            counts[siteKey] = 0
+        } 
+        counts[siteKey] +=1
+    }) 
+    return counts
+})
 
 
 async function toggleFavorite(jobid){
@@ -21,21 +43,24 @@ async function toggleFavorite(jobid){
   await saveJobs(jobs.value)
 }
 
-
-
 async function handleSave() {
   const response = await collectJobsFromPage()
 
-  if(!response.ok){
-    status.value = response.message
-    jobs.value = []
+  if(!response?.ok){
+    status.value = response.message || '수집에 실패했습니다.'
     return
   }
-
-  const mergedJobs = await saveMergedJobs(response.jobs)
+  const siteKey = response.site || response.jobs?.[0]?.site || 'saramin'
+  const mergedJobs = await saveMergedJobs(siteKey,response.jobs)
   jobs.value = mergedJobs
+  selectedSite.value = siteKey
   status.value = 
-  '저장 완료:' + response.jobs.length + '개 / 전체:' + mergedJobs.length + '개'
+  SITE_LABELS[siteKey] +
+  '저장 완료:' + 
+  response.jobs.length + 
+  '개 / 전체:' + 
+  mergedJobs.length + 
+  '개'
 }
 
 async function handleClear() {
@@ -44,8 +69,15 @@ async function handleClear() {
   status.value = '저장된 공고가 없습니다.'
 }
 
+
 const filteredJobs = computed(() => {
   let result = [...jobs.value]
+
+  if(selectedSite.value !== 'all'){
+    result = result.filter((job)=>{
+        return getSiteKey(job) === selectedSite.value
+    })
+  }
 
   const keyword = searchKeyword.value.trim().toLowerCase()
 
@@ -100,12 +132,15 @@ onMounted(async()=>{
 <template>
 <div class="popupwrap">
   <h1 class="popuptitle">공고 수집</h1>
-  <ActionBar 
+  <ActionBar
+  :selectedSite="selectedSite" 
+  :siteCounts="siteCounts"
   @save="handleSave"
   @clear="handleClear"
+  @update:selectedSite="selectedSite = $event"
   />
   <p>{{ status }}</p>
-  
+
   <JobFilter 
   :searchKeyword="searchKeyword"
   :showFavoritesOnly="showFavoritesOnly"

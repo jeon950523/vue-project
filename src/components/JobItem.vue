@@ -12,6 +12,12 @@ defineEmits(['toggle-favorite'])
     <article class="jobcard">
      <h2 class="jobCardTitle">{{ job.title }}</h2>
     
+    <p class="jobRow">
+        <span class="jobLabel">출처:</span>
+        <span>{{ job.source || '사람인'}}</span>
+    </p>
+
+
      <p class="jobRow">
       <span class="jobLabel">회사명:</span>
       <span>{{ job.company }}</span>
