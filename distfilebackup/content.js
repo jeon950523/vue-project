@@ -67,7 +67,7 @@ function createJob({
   ,postedDate
   ,url
   ,favorite:false
-  ,ignore:false
+  ,ignored:false
 };
 }
 
@@ -400,7 +400,7 @@ function collectIncruitJobs(){
   return jobs;
 }
 
-function collectJobkoreaJobs(){
+function collectJobKoreaJobs(){
   const cards=document.querySelectorAll('tr[class*="dev"][data-gno], tr[class*="dev"], [data-gno]')
   const jobs = []
 
@@ -413,7 +413,7 @@ function collectJobkoreaJobs(){
     )
     const company = cleanText(companyElement?.textContent)
     const title = cleanText(titleElement?.textContent)
-    const url = getAbsoluteUrl(titleElement?.getAttribute('herf'))
+    const url = getAbsoluteUrl(titleElement?.getAttribute('href'))
 
     if (!company || !title) return
 
@@ -440,7 +440,7 @@ function collectJobkoreaJobs(){
     
     jobs.push(
       createJob({
-        sourceKey:STIE.JOBKOREA
+        sourceKey:SITE.JOBKOREA
         ,source:'잡코리아'
         ,company
         ,title
