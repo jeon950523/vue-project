@@ -15,7 +15,8 @@ const jobs = ref([]);
 const status = ref('');
 const searchKeyword = ref('')
 const showFavoritesOnly = ref(false)
-const sortOption = ref('latest')
+const sortField = ref('default')
+const sortDirection = ref('asc')
 const selectedSite = ref('all')
 const showIgnoredJobs = ref(false)
 
@@ -80,9 +81,63 @@ async function handleClear() {
   status.value = '저장된 공고가 없습니다.'
 }
 
+function parseDeadlineValue(deadline){
+    if(!deadline) return null
+    const text = String(deadline).trim()
+
+    if(
+        text.includes('상시') ||
+        text.includes('채용시') ||
+        text.includes('수시') ||
+        text ==='정보없음'
+    ){
+    return null
+    }
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const dDayMatch = text.match(/D-(\d+)/i)
+
+    if(dDayMatch){
+        const days = Number(dDayMatch[1])
+        const date = new Date()
+        date.setDate(date.getDate()+ days)
+        return date.getTime()
+    }
+    if(text.includes('오늘')){
+        return now.getTime()
+    }
+    const monthDayMatch = text.match(/(\d{1,2})[/.](\d{1,2})/)
+
+    if(monthDayMatch){
+        const month = Number(monthDayMatch[1])
+        const day = Number(monthDayMatch[2])
+        const date = new Date(currentYear, month - 1, day)
+
+        return date.getTime()
+    }
+    return null
+}
+
+function compareDeadline(a, b, direction){
+    const aValue = parseDeadlineValue(a.deadline)
+    const bValue = parseDeadlineValue(b.deadline)
+
+    if(aValue === null && bValue === null) return 0
+    if(aValue === null) return 1
+    if(bValue === null) return -1
+
+    return direction ==='asc'
+    ?aValue - bValue
+    :bValue - aValue
+}
+
+
 
 const filteredJobs = computed(() => {
-  let result = [...jobs.value]
+  let result = jobs.value.map((job, index)=>({
+    ...job,
+    displayNumber: index + 1
+  }))
 
   if(selectedSite.value !== 'all'){
     result = result.filter((job)=>{
@@ -115,15 +170,30 @@ const filteredJobs = computed(() => {
     result = result.filter((job) => job.favorite)
   }
 
-  if (sortOption.value === 'company') {
-    result.sort((a, b) => {
-      return (a.company || '').localeCompare(b.company || '')
+  const direction = sortDirection.value
+
+  if(sortField.value === 'default'){
+    result.sort((a,b)=>{
+        return direction === 'asc'
+        ? a.displayNumber - b.displayNumber
+        :b.displayNumber - a.displayNumber
     })
   }
-
-  if (sortOption.value === 'title') {
-    result.sort((a, b) => {
-      return (a.title || '').localeCompare(b.title || '')
+  if(sortField.value ==='company'){
+    result.sort((a,b)=>{
+        const compared = (a.company||'').localeCompare(b.company||'')
+        return direction ==='asc'?compared : -compared
+    })
+  }
+  if(sortField.value === 'title'){
+    result.sort((a,b)=>{
+        const compared = (a.title||'').localeCompare(b.title||'')
+        return direction ==='asc'? compared : -compared
+    })
+  }
+  if(sortField.value === 'deadline'){
+    result.sort((a,b)=>{
+        return compareDeadline(a,b,direction)
     })
   }
 
@@ -162,11 +232,13 @@ onMounted(async()=>{
   :searchKeyword="searchKeyword"
   :showFavoritesOnly="showFavoritesOnly"
   :showIgnoredJobs="showIgnoredJobs"
-  :sortOption="sortOption"
+  :sortField="sortField"
+  :sortDirection="sortDirection"
   @update:searchKeyword="searchKeyword = $event"
   @update:showFavoritesOnly="showFavoritesOnly = $event"
   @update:showIgnoredJobs="showIgnoredJobs = $event"
-  @update:sortOption="sortOption = $event"
+  @update:sortField="sortField = $event"
+  @update:sortDirection="sortDirection = $event"
   />
  
   <JobList :jobs="filteredJobs"

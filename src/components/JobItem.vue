@@ -10,6 +10,7 @@ defineEmits(['toggle-favorite','toggle-ignored'])
 
 <template>
     <article class="jobcard">
+    <p class="jobNumber">#{{ job.displayNumber }}</p>
      <h2 class="jobCardTitle">{{ job.title }}</h2>
     
     <p class="jobRow">
@@ -127,5 +128,11 @@ defineEmits(['toggle-favorite','toggle-ignored'])
     font-size: 14px;
     font-weight: 700;
     color: #777;
+}
+.jobNumber{
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #666;
 }
 </style>

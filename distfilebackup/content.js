@@ -535,14 +535,29 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return;
   }
   if(site===SITE.JOBKOREA){
-    sendResponse({
-      ok:false,
-      message: '잡코리아'
+    try{ 
+      const jobs = collectJobKoreaJobs();
+      if(jobs.length === 0){
+        sendResponse({
+          ok:false,
+          message: '현재 잡코리아 페이지에서 공고를 찾지 못했습니다.'
+        });
+      return;
+      }
+      sendResponse({
+        ok:true,
+        site,
+        jobs
+      });
+    }
+    catch(error){
+      console.log('[잡코리아 수집 오류]', error);
+      
+      sendResponse({
+        ok:false,
+        message: '지원하지 않는 사이트 입니다.'
     });
-    return;
   }
-  sendResponse({
-    ok:false,
-    message: '지원하지 않는 사이트 입니다.'
-  });
-});
+  return;
+  }
+})
