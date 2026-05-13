@@ -9,7 +9,7 @@ import { loadSavedJobs,
          saveJobs,
          getSiteKey,
          SITE_LABELS} from './utils/storage';
-import { collectJobsFromPage } from './utils/chromeMessage'
+import { collectJobsFromPage,getCurrentPageInfo } from './utils/chromeMessage'
 
 const jobs = ref([]);
 const status = ref('');
@@ -19,7 +19,8 @@ const sortField = ref('default')
 const sortDirection = ref('asc')
 const selectedSite = ref('all')
 const showIgnoredJobs = ref(false)
-
+const collectPage = ref(1)
+const lastCollectedPage = ref(null)
 
 const siteCounts = computed(()=>{
     const counts = {
@@ -56,23 +57,41 @@ async function toggleIgnored(jobId) {
 
 
 async function handleSave() {
-  const response = await collectJobsFromPage()
+  const pageToCollect = Number(collectPage.value||1)
 
-  if(!response?.ok){
-    status.value = response.message || '수집에 실패했습니다.'
-    return
-  }
-  const siteKey = response.site || response.jobs?.[0]?.site || 'saramin'
-  const mergedJobs = await saveMergedJobs(siteKey,response.jobs)
-  jobs.value = mergedJobs
-  selectedSite.value = siteKey
-  status.value = 
-  SITE_LABELS[siteKey] +
-  '저장 완료:' + 
-  response.jobs.length + 
-  '개 / 전체:' + 
-  mergedJobs.length + 
-  '개'
+  status.value = pageToCollect + '페이지 수집중...'
+try{
+    const response = await collectJobsFromPage(pageToCollect)
+    
+    if(!response?.ok){
+      status.value = response.message || '수집에 실패했습니다.'
+      return
+}
+const siteKey = response.site || response.jobs?.[0]?.site || 'saramin'
+const mergedJobs = await saveMergedJobs(siteKey,response.jobs)
+
+jobs.value = mergedJobs
+selectedSite.value = siteKey
+
+lastCollectedPage.value = pageToCollect
+collectPage.value = pageToCollect + 1
+
+status.value = 
+SITE_LABELS[siteKey] +
+' ' + 
+pageToCollect +
+'페이지 저장 완료:' +
+response.jobs.length+
+'개/ 전체: '+
+mergedJobs.length +
+'개/ 다음 수집: '+
+collectPage.value +
+'페이지'
+
+}catch(error){
+    console.log(error)
+    status.value = '수집 중 오류가 발생했습니다. popup 콘솔을 확인해주세요.'
+    }
 }
 
 async function handleClear() {
@@ -205,6 +224,12 @@ const filteredJobs = computed(() => {
 onMounted(async()=>{
   const savedJobs = await loadSavedJobs()
   jobs.value = savedJobs
+  
+  const pageInfo = await getCurrentPageInfo()
+
+  if(pageInfo.page){
+    collectPage.value = pageInfo.page
+  }
 
   if (savedJobs.length === 0){
     status.value = '저장된 공고가 없습니다'
@@ -222,9 +247,12 @@ onMounted(async()=>{
   <ActionBar
   :selectedSite="selectedSite" 
   :siteCounts="siteCounts"
+  :collectPage="collectPage"
+  :lastCollectedPage="lastCollectedPage"
   @save="handleSave"
   @clear="handleClear"
   @update:selectedSite="selectedSite = $event"
+  @update:collectPage="collectPage = $event"
   />
   <p>{{ status }}</p>
 

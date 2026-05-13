@@ -56,7 +56,7 @@ defineEmits([
     <select class="sortSelect"
         :value="sortField"
         @change="$emit('update:sortField',$event.target.value)">
-        <option value="latest">기본순</option>
+        <option value="defalut">기본순</option>
         <option value="company">회사명</option>
         <option value="title">공고명순</option>
         <option value="deadline">마감일</option>
