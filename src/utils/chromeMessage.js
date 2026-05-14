@@ -92,7 +92,7 @@ function buildPageUrl(tabUrl, site, page){
   }
 }
 
-function waitForTabLoad(tabId){
+function waitForTabLoad(tabId, timeoutMs = 3000){
   return new Promise((resolve)=>{
     let finished = false
 
